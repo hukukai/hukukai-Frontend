@@ -2,26 +2,27 @@
 import { useState } from "react";
 import { C } from "../theme";
 import { IcArrowL, IcPlus, IcMic, IcDownload, IcBookmark, IcX, IcChevD } from "../components/Icons";
+import API_BASE from "../config";
 
-const MAHKEMELER = ["Yargıtay","Birinci Derece Mahkemesi","Bölge Adliye Mahkemesi","Bölge İdare Mahkemesi","Danıştay","Uyuşmazlık Mahkemesi","Anayasa Mahkemesi","AIHM","Rekabet Kurulu","Reklam Kurulu","KVKK Kurulu","Sayıştay","Ağır ceza Mahkemesi"];
+const MAHKEMELER = ["Yargıtay", "Birinci Derece Mahkemesi", "Bölge Adliye Mahkemesi", "Bölge İdare Mahkemesi", "Danıştay", "Uyuşmazlık Mahkemesi", "Anayasa Mahkemesi", "AIHM", "Rekabet Kurulu", "Reklam Kurulu", "KVKK Kurulu", "Sayıştay", "Ağır ceza Mahkemesi"];
 const ORNEK_SORULAR = [
-  { baslik:"Kira Sözleşmesi Uyuşmazlığı", aciklama:"Bir kiracı, ev sahibinin habersiz şekilde eve girerek inceleme yapmaya çalıştığını iddia etmektedir." },
-  { baslik:"Künyede Arama", aciklama:"2022/585 Esas numarasına, 2023/418 Karar numarasına sahip yargıtay kararını getir." },
-  { baslik:"Haksız Fesih ve Tazminat Talebi", aciklama:"Bir işçi, işveren tarafından performans düşüklüğü gerekçesiyle işten çıkarılmıştır." },
-  { baslik:"Tahliye Taahhütnamesi Zorlaması", aciklama:"Bir kiracı, ev sahibi tarafından tahliye taahhütnamesi imzalamaya zorlandığını iddia etmektedir." },
-  { baslik:"Erken Ödeme Cezası İtirazı", aciklama:"Bir tüketici, bankadan kullandığı tüketici kredisi için erken ödeme yapmış." },
-  { baslik:"Mal Rejimi ve Edinilmiş Mal Paylaşımı", aciklama:"Evlilik birliği içinde edinilen taşınmaz ve banka hesabı, boşanma davasında paylaşım konusu." },
-  { baslik:"Kişisel Veri İhlali ve Tazminat", aciklama:"Bir şirket, müşterilerinin kişisel verilerini yeterince korumamış." },
-  { baslik:"Sendika Üyeliği Gerekçesiyle Fesih", aciklama:"Bir işçi, sendika üyeliği nedeniyle işveren tarafından işten çıkarılmıştır." },
-  { baslik:"Tıbbi İhmal Sonrası Tazminat", aciklama:"Bir hasta, ameliyat sonrası hekimin ihmali nedeniyle komplikasyonlar yaşamıştır." },
+  { baslik: "Kira Sözleşmesi Uyuşmazlığı", aciklama: "Bir kiracı, ev sahibinin habersiz şekilde eve girerek inceleme yapmaya çalıştığını iddia etmektedir." },
+  { baslik: "Künyede Arama", aciklama: "2022/585 Esas numarasına, 2023/418 Karar numarasına sahip yargıtay kararını getir." },
+  { baslik: "Haksız Fesih ve Tazminat Talebi", aciklama: "Bir işçi, işveren tarafından performans düşüklüğü gerekçesiyle işten çıkarılmıştır." },
+  { baslik: "Tahliye Taahhütnamesi Zorlaması", aciklama: "Bir kiracı, ev sahibi tarafından tahliye taahhütnamesi imzalamaya zorlandığını iddia etmektedir." },
+  { baslik: "Erken Ödeme Cezası İtirazı", aciklama: "Bir tüketici, bankadan kullandığı tüketici kredisi için erken ödeme yapmış." },
+  { baslik: "Mal Rejimi ve Edinilmiş Mal Paylaşımı", aciklama: "Evlilik birliği içinde edinilen taşınmaz ve banka hesabı, boşanma davasında paylaşım konusu." },
+  { baslik: "Kişisel Veri İhlali ve Tazminat", aciklama: "Bir şirket, müşterilerinin kişisel verilerini yeterince korumamış." },
+  { baslik: "Sendika Üyeliği Gerekçesiyle Fesih", aciklama: "Bir işçi, sendika üyeliği nedeniyle işveren tarafından işten çıkarılmıştır." },
+  { baslik: "Tıbbi İhmal Sonrası Tazminat", aciklama: "Bir hasta, ameliyat sonrası hekimin ihmali nedeniyle komplikasyonlar yaşamıştır." },
 ];
 
 const MOCK_KARARLAR = [
-  { id:1, mahkeme:"Yargıtay", daire:"3. Hukuk Dairesi", esas:"2023/2919 E.", karar:"2024/1215 K.", tarih:"20.03.2024", eslesme:95, tip:"Huk", ozet:"Somut olayda; taraflar arasında 01.12.2015 başlangıç tarihli ve bir yıl süreli konut kira sözleşmesi bulunmakla, sözleşme bir yıl sonunda kanun gereği bir yıl süre ile yenilenmiştir. Davacı kiracı, yenilenen dönemde geçici süre evde bulunmadığı sırada kiraya veren tarafından kiralanana girilerek eşyalarının ve parasının alındığını iddia etmiş..." },
-  { id:2, mahkeme:"Yargıtay", daire:"4. Ceza Dairesi", esas:"2014/46929 E.", karar:"2015/1908 K.", tarih:"24.06.2010", eslesme:95, tip:"Ceza", ozet:"Zira, bir sözleşme ilişkisi kurulduktan sonra, taraflardan birinin fesih ihbarının karşı tarafa ulaştırılmasıyla sözleşmenin sona ereceği açık ise de, aradaki ihtilaf ve uyuşmazlıkları, fesheden ya da muhatabı tarafından işgal, el koyma vb. hareketlerle çözümlenmeye çalışılması..." },
-  { id:3, mahkeme:"Yargıtay", daire:"6. Hukuk Dairesi", esas:"2016/8493 E.", karar:"2016/6719 K.", tarih:"16.11.2016", eslesme:40, tip:"Huk", ozet:"Türk Borçlar Kanununun 3. maddesi hükmünce kiracı kiralananı sözleşmeye uygun olarak özenle kullanmak ve kiralananın bulunduğu taşınmazda oturan kişiler ile komşulara gerekli saygıyı göstermekle yükümlüdür..." },
-  { id:4, mahkeme:"Yargıtay", daire:"3. Hukuk Dairesi", esas:"2017/1448 E.", karar:"2017/405 K.", tarih:"01.01.2017", eslesme:40, tip:"Huk", ozet:"Türk Borçlar Kanununun 3. maddesi hükmünce kiracı kiralananı sözleşmeye uygun olarak özenle kullanmak ve kiralananın bulunduğu taşınmazda oturan kişiler ile komşulara gerekli saygıyı göstermekle yükümlüdür..." },
-  { id:5, mahkeme:"Yargıtay", daire:"(Kapatılan) 6. Hukuk Dairesi", esas:"2013/3538 E.", karar:"2013/8408 K.", tarih:"14.05.2013", eslesme:40, tip:"Huk", ozet:"2. madde sayfasının son ve kiracı lehine olan cümlesinde kiracının sözleşme süresi öncesi evden çıkış yapmak istemesi halinde, üç ay evvelinden bildirimde bulunması gerekmekte olup..." },
+  { id: 1, mahkeme: "Yargıtay", daire: "3. Hukuk Dairesi", esas: "2023/2919 E.", karar: "2024/1215 K.", tarih: "20.03.2024", eslesme: 95, tip: "Huk", ozet: "Somut olayda; taraflar arasında 01.12.2015 başlangıç tarihli ve bir yıl süreli konut kira sözleşmesi bulunmakla, sözleşme bir yıl sonunda kanun gereği bir yıl süre ile yenilenmiştir. Davacı kiracı, yenilenen dönemde geçici süre evde bulunmadığı sırada kiraya veren tarafından kiralanana girilerek eşyalarının ve parasının alındığını iddia etmiş..." },
+  { id: 2, mahkeme: "Yargıtay", daire: "4. Ceza Dairesi", esas: "2014/46929 E.", karar: "2015/1908 K.", tarih: "24.06.2010", eslesme: 95, tip: "Ceza", ozet: "Zira, bir sözleşme ilişkisi kurulduktan sonra, taraflardan birinin fesih ihbarının karşı tarafa ulaştırılmasıyla sözleşmenin sona ereceği açık ise de, aradaki ihtilaf ve uyuşmazlıkları, fesheden ya da muhatabı tarafından işgal, el koyma vb. hareketlerle çözümlenmeye çalışılması..." },
+  { id: 3, mahkeme: "Yargıtay", daire: "6. Hukuk Dairesi", esas: "2016/8493 E.", karar: "2016/6719 K.", tarih: "16.11.2016", eslesme: 40, tip: "Huk", ozet: "Türk Borçlar Kanununun 3. maddesi hükmünce kiracı kiralananı sözleşmeye uygun olarak özenle kullanmak ve kiralananın bulunduğu taşınmazda oturan kişiler ile komşulara gerekli saygıyı göstermekle yükümlüdür..." },
+  { id: 4, mahkeme: "Yargıtay", daire: "3. Hukuk Dairesi", esas: "2017/1448 E.", karar: "2017/405 K.", tarih: "01.01.2017", eslesme: 40, tip: "Huk", ozet: "Türk Borçlar Kanununun 3. maddesi hükmünce kiracı kiralananı sözleşmeye uygun olarak özenle kullanmak ve kiralananın bulunduğu taşınmazda oturan kişiler ile komşulara gerekli saygıyı göstermekle yükümlüdür..." },
+  { id: 5, mahkeme: "Yargıtay", daire: "(Kapatılan) 6. Hukuk Dairesi", esas: "2013/3538 E.", karar: "2013/8408 K.", tarih: "14.05.2013", eslesme: 40, tip: "Huk", ozet: "2. madde sayfasının son ve kiracı lehine olan cümlesinde kiracının sözleşme süresi öncesi evden çıkış yapmak istemesi halinde, üç ay evvelinden bildirimde bulunması gerekmekte olup..." },
 ];
 
 const MOCK_ANALIZ = `Bu hukuki sorun, kira sözleşmesinden doğan hak ve yükümlülükler ile özel hayatın gizliliği hakkının kesiştiği önemli bir alanı teşkil etmektedir. Türk hukuku çerçevesinde bu durumun akademik ve hukuki yönleri aşağıda açıklanmıştır:
@@ -33,22 +34,70 @@ Kira sözleşmesi, kiraya verenin bir şeyin kullanılmasını veya kullanmayla 
 • **Sözleşmeye Aykırılık:** Kiraya verenin, kira sözleşmesinde belirtilen koşullara aykırı olarak kiralanana girmesi, sözleşmeye aykırılık oluşturabilir.`;
 
 export default function KararAramaPage({ navTo }) {
-  const [query,          setQuery]          = useState("");
-  const [results,        setResults]        = useState(null);
-  const [analiz,         setAnaliz]         = useState(null);
-  const [loading,        setLoading]        = useState(false);
-  const [selectedMhk,   setSelectedMhk]    = useState([]);
-  const [analizModu,    setAnalizModu]     = useState(true);
-  const [detayKarar,    setDetayKarar]     = useState(null);
-  const [gecmis,        setGecmis]         = useState([]);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState(null);
+  const [analiz, setAnaliz] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedMhk, setSelectedMhk] = useState([]);
+  const [analizModu, setAnalizModu] = useState(true);
+  const [detayKarar, setDetayKarar] = useState(null);
+  const [gecmis, setGecmis] = useState([]);
 
-  const ara = () => {
+  const ara = async () => {
     if (!query.trim()) return;
     setLoading(true); setResults(null); setAnaliz(null);
     if (!gecmis.includes(query)) setGecmis(p => [query, ...p].slice(0, 10));
-    setTimeout(() => { setResults(MOCK_KARARLAR); if (analizModu) setAnaliz(MOCK_ANALIZ); setLoading(false); }, 800);
-  };
 
+    try {
+      const res = await fetch(`${API_BASE}/api/karar-ara/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!res.ok) throw new Error("API hatası: " + res.status);
+      const data = await res.json();
+
+      // Mevzuat sonuçlarını KararRow formatına çevir
+      const mevzuatRows = (data.mevzuat || []).map((m, i) => ({
+        id: `m-${i}`,
+        mahkeme: "Mevzuat",
+        daire: m.kanun_adi,
+        esas: `Madde ${m.madde_no}`,
+        karar: "",
+        tarih: "-",
+        eslesme: Math.round((1 - (m.similarity || 0)) * 100) || 80,
+        tip: "Kanun",
+        ozet: m.icerik,
+      }));
+
+      // Karar sonuçlarını formatla
+      const kararRows = (data.kararlar || []).map((k, i) => ({
+        id: `k-${i}`,
+        mahkeme: k.kaynak || "Yargıtay",
+        daire: k.daire || "-",
+        esas: k.esas_no || "-",
+        karar: k.karar_no || "-",
+        tarih: k.tarih || "-",
+        eslesme: Math.round((1 - (k.similarity || 0)) * 100) || 75,
+        tip: "Karar",
+        ozet: k.icerik,
+      }));
+
+      const tumSonuclar = [...mevzuatRows, ...kararRows];
+      setResults(tumSonuclar.length > 0 ? tumSonuclar : []);
+
+      if (analizModu && tumSonuclar.length > 0) {
+        setAnaliz(tumSonuclar.slice(0, 3).map(r => `**${r.daire} ${r.esas}**\n${r.ozet}`).join("\n\n---\n\n"));
+      }
+
+    } catch (err) {
+      setResults([]);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
   if (detayKarar) return <KararDetay karar={detayKarar} onBack={() => setDetayKarar(null)} />;
 
   return (
@@ -229,10 +278,10 @@ function KararRow({ karar, onView }) {
 }
 
 function KararDetay({ karar, onBack }) {
-  const [tab,     setTab]     = useState("metin");
+  const [tab, setTab] = useState("metin");
   const [sideTab, setSideTab] = useState("ozet");
-  const [not,     setNot]     = useState("");
-  const [notlar,  setNotlar]  = useState([]);
+  const [not, setNot] = useState("");
+  const [notlar, setNotlar] = useState([]);
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <div style={{ padding: "10px 20px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: 12, background: C.bg, flexShrink: 0 }}>

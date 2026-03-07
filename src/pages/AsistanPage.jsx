@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { C } from "../theme";
 import { IcArrowL, IcPlus, IcAttach, IcMic, IcWand, IcChevD, IcDownload, IcBookmark, IcX } from "../components/Icons";
+import API_BASE from "../config";
 
 const ORNEK_SORULAR = [
   { baslik: "Kira Sözleşmesi Uyuşmazlığı", aciklama: "Ev sahibinin habersiz şekilde eve girmesi halinde kiracının hakları nelerdir?" },
@@ -12,9 +13,9 @@ const ORNEK_SORULAR = [
 ];
 
 const mockKararlar = [
-  { id:1, mahkeme:"Yargıtay", daire:"3. Hukuk Dairesi", esas:"2023/2919 E.", karar:"2024/1215 K.", tarih:"20.03.2024", eslesme:95, tip:"Huk" },
-  { id:2, mahkeme:"Yargıtay", daire:"4. Ceza Dairesi", esas:"2014/46929 E.", karar:"2015/1908 K.", tarih:"24.06.2010", eslesme:95, tip:"Ceza" },
-  { id:3, mahkeme:"Yargıtay", daire:"6. Hukuk Dairesi", esas:"2016/8493 E.", karar:"2016/6719 K.", tarih:"16.11.2016", eslesme:60, tip:"Huk" },
+  { id: 1, mahkeme: "Yargıtay", daire: "3. Hukuk Dairesi", esas: "2023/2919 E.", karar: "2024/1215 K.", tarih: "20.03.2024", eslesme: 95, tip: "Huk" },
+  { id: 2, mahkeme: "Yargıtay", daire: "4. Ceza Dairesi", esas: "2014/46929 E.", karar: "2015/1908 K.", tarih: "24.06.2010", eslesme: 95, tip: "Ceza" },
+  { id: 3, mahkeme: "Yargıtay", daire: "6. Hukuk Dairesi", esas: "2016/8493 E.", karar: "2016/6719 K.", tarih: "16.11.2016", eslesme: 60, tip: "Huk" },
 ];
 
 export default function AsistanPage({ navTo }) {
@@ -49,7 +50,7 @@ export default function AsistanPage({ navTo }) {
     try {
       const history = messages.map(m => ({ role: m.role, content: m.content }));
 
-      const res = await fetch("http://127.0.0.1:8000/api/chat/", {
+      const res = await fetch(`${API_BASE}/api/chat/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q, history }),
@@ -75,7 +76,7 @@ export default function AsistanPage({ navTo }) {
               full += d.content;
               setStreaming(full);
             }
-          } catch {}
+          } catch { }
         }
       }
 
